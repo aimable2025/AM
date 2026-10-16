@@ -69,8 +69,12 @@ function HomeRedirect() {
   }
 
   if (isAuthenticated && user) {
-    // Les comptes privilégiés (Admin Système & DG) accèdent directement au Dashboard
-    if (!user.isApproved && !isPrivilegedRole(user.role)) {
+    if (
+      user.status === 'suspended' ||
+      user.status === 'disabled' ||
+      user.status === 'rejected' ||
+      !user.isApproved
+    ) {
       return <Navigate to="/validation-en-attente" replace />;
     }
     return <Navigate to={getDashboardRoute(user)} replace />;
@@ -86,7 +90,12 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return null;
 
   if (isAuthenticated && user) {
-    if (!user.isApproved && !isPrivilegedRole(user.role)) {
+    if (
+      user.status === 'suspended' ||
+      user.status === 'disabled' ||
+      user.status === 'rejected' ||
+      !user.isApproved
+    ) {
       return <Navigate to="/validation-en-attente" replace />;
     }
     return <Navigate to={getDashboardRoute(user)} replace />;

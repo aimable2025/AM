@@ -13,6 +13,9 @@ import {
   resolveInternalNumber,
 } from './InternalNumberResolver';
 
+import { db } from '../lib/db';
+import type { SmsOperationStatus } from '../types/smsOperation';
+
 let listenerHandle: PluginListenerHandle | null = null;
 
 function generateSmsId(): string {
@@ -20,6 +23,63 @@ function generateSmsId(): string {
     return `sms_${crypto.randomUUID()}`;
   }
   return `sms_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+}
+
+/**
+ * Analyse le texte d'un SMS télécom (M-Pesa, Airtel Money, Orange Money, Africell)
+ * pour identifier les données financières sans jamais les considérer comme une preuve absolue.
+ */
+function parseSmsContent(message: string): {
+  reference?: string;
+  amount?: number;
+  currency?: string;
+  transactionType?: string;
+} {
+  const result: {
+    reference?: string;
+    amount?: number;
+    currency?: string;
+    transactionType?: string;
+  } = {};
+
+  try {
+    // 1. Référence de transaction
+    const refMatch =
+      message.match(/(?:TxId|Trans(?:\.|\s+)?Id|Ref(?:\.|\s+)?|ID(?:\.|\s+)?|Réf(?:\.|\s+)?|transaction\s+(?:n°|no|id)?)\s*[:#]?\s*([A-Za-z0-9._-]+)/i) ||
+      message.match(/\b([A-Z0-9]{8,15})\b/);
+    if (refMatch && refMatch[1]) {
+      result.reference = refMatch[1].trim();
+    }
+
+    // 2. Montant et devise (USD ou CDF/FC)
+    const amountMatch =
+      message.match(/([0-9]+(?:[.,][0-9]{1,2})?)\s*(USD|\$|CDF|FC)\b/i) ||
+      message.match(/(?:USD|\$|CDF|FC)\s*([0-9]+(?:[.,][0-9]{1,2})?)/i) ||
+      message.match(/(?:reçu|recu|envoyé|envoye|retiré|retire|montant)\s*[:]?\s*([0-9]+(?:[.,][0-9]{1,2})?)\s*(USD|CDF|FC)?/i);
+
+    if (amountMatch) {
+      const valStr = (amountMatch[1] || amountMatch[2])?.replace(',', '.');
+      const curStr = (amountMatch[2] || amountMatch[1])?.toUpperCase();
+      const num = parseFloat(valStr);
+      if (!isNaN(num)) {
+        result.amount = num;
+      }
+      if (curStr) {
+        result.currency = curStr.includes('CDF') || curStr.includes('FC') ? 'CDF' : 'USD';
+      }
+    }
+
+    // 3. Type d'opération suggéré par le SMS
+    if (/reçu|recu|credited|dépôt|depot/i.test(message)) {
+      result.transactionType = 'depot';
+    } else if (/envoyé|envoye|retiré|retire|debited/i.test(message)) {
+      result.transactionType = 'retrait';
+    }
+  } catch {
+    // Échec silencieux du parseur, conservation du SMS brut
+  }
+
+  return result;
 }
 
 async function processSms(
@@ -58,7 +118,35 @@ async function processSms(
       return;
     }
 
+    // Déduplication stricte par sender, timestamp et contenu du SMS
+    const duplicate = await db.smsOperations
+      .where('operationDate')
+      .equals(event.timestamp)
+      .filter(
+        (item) =>
+          item.sender === event.sender &&
+          item.rawMessage === event.message &&
+          item.internalNumberId === internalNumber.internalNumberId
+      )
+      .first();
+
+    if (duplicate) {
+      console.info('[Ets AMANI] SMS dupliqué ignoré :', duplicate.id);
+      return;
+    }
+
     const now = Date.now();
+    // Analyse et extraction des données
+    const parsed = parseSmsContent(event.message);
+
+    // Détermination de l'état du cycle de vie
+    let status: SmsOperationStatus = 'received';
+    if (parsed.reference && parsed.amount !== undefined) {
+      status = 'identified';
+    } else if (parsed.amount !== undefined || parsed.reference) {
+      status = 'analyzed';
+    }
+
     await saveSmsOperationLocally({
       id: generateSmsId(),
       internalNumberId: internalNumber.internalNumberId,
@@ -66,19 +154,26 @@ async function processSms(
       operator: internalNumber.operator,
       sender: event.sender,
       rawMessage: event.message,
+      transactionReference: parsed.reference,
+      amount: parsed.amount,
+      currency: parsed.currency || 'USD',
+      transactionType: parsed.transactionType,
       operationDate: event.timestamp,
       receivedAt: now,
-      status: 'pending',
+      processedAt: now,
+      status,
+      reconciliationStatus: 'unmatched', // Non rapproché par défaut : un SMS ne constitue jamais une preuve financière suffisante
       syncStatus: 'pending',
       createdAt: now,
       updatedAt: now,
     });
 
-    console.info('[Ets AMANI] SMS enregistré localement.', {
+    console.info('[Ets AMANI] SMS enregistré avec succès et prêt pour rapprochement.', {
       internalNumberId: internalNumber.internalNumberId,
       phoneNumber: internalNumber.phoneNumber,
       operator: internalNumber.operator,
       agencyId: internalNumber.agencyId,
+      status,
     });
   } catch (error) {
     console.error(

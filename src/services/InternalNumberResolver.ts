@@ -32,11 +32,26 @@ export async function resolveInternalNumber(
     return null;
   }
 
-  const numbers = await db.internalNumbers.toArray();
-  const match = numbers.find((item) => {
+  let numbers = await db.internalNumbers.toArray();
+  let match = numbers.find((item) => {
     const localNormalized = normalizePhoneNumber(item.phoneNumber);
     return localNormalized === targetNormalized;
   });
+
+  // Si non trouvé en cache local et connecté, tenter une synchronisation descendante immédiate
+  if (!match && typeof navigator !== 'undefined' && navigator.onLine) {
+    try {
+      const { syncInternalNumbers } = await import('./InternalNumberSyncService');
+      await syncInternalNumbers();
+      numbers = await db.internalNumbers.toArray();
+      match = numbers.find((item) => {
+        const localNormalized = normalizePhoneNumber(item.phoneNumber);
+        return localNormalized === targetNormalized;
+      });
+    } catch {
+      // ignore
+    }
+  }
 
   if (!match) {
     return null;

@@ -30,6 +30,19 @@ const MAX_ATTEMPTS = 5;
 let isSyncing = false;
 let syncIntervalId: ReturnType<typeof setInterval> | null = null;
 
+async function isPendingDelete(entity: string, entityId: string): Promise<boolean> {
+  try {
+    const count = await db.syncQueue
+      .where('status')
+      .anyOf('pending', 'processing')
+      .filter((item) => item.entity === entity && item.entityId === entityId && item.operation === 'delete')
+      .count();
+    return count > 0;
+  } catch {
+    return false;
+  }
+}
+
 async function pullRemoteDataToLocal(): Promise<void> {
   if (!isFirebaseConfigured || (typeof navigator !== 'undefined' && !navigator.onLine)) {
     return;
@@ -41,8 +54,17 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of opsSnap.docs) {
       const remoteData = docSnap.data() as Operation;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('operation', id)) continue;
+
       const localExisting = await db.operations.get(id);
-      if (!localExisting || localExisting.syncStatus !== 'pending') {
+      const remoteUpdatedAt = Number(remoteData.updatedAt || 0);
+      const localUpdatedAt = Number(localExisting?.updatedAt || 0);
+
+      if (
+        !localExisting ||
+        localExisting.syncStatus !== 'pending' ||
+        remoteUpdatedAt > localUpdatedAt
+      ) {
         await db.operations.put({
           ...remoteData,
           id,
@@ -60,8 +82,17 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of assignSnap.docs) {
       const remoteData = docSnap.data() as OperationAssignment;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('operationAssignment', id)) continue;
+
       const localExisting = await db.operationAssignments.get(id);
-      if (!localExisting || localExisting.syncStatus !== 'pending') {
+      const remoteUpdatedAt = Number(remoteData.updatedAt || 0);
+      const localUpdatedAt = Number(localExisting?.updatedAt || 0);
+
+      if (
+        !localExisting ||
+        localExisting.syncStatus !== 'pending' ||
+        remoteUpdatedAt > localUpdatedAt
+      ) {
         await db.operationAssignments.put({
           ...remoteData,
           id,
@@ -79,8 +110,17 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of billSnap.docs) {
       const raw = docSnap.data();
       const id = (raw.id as string) || docSnap.id;
+      if (await isPendingDelete('billetage', id)) continue;
+
       const localExisting = await db.billetages.get(id);
-      if (!localExisting || localExisting.syncStatus !== 'pending') {
+      const remoteUpdatedAt = Number(raw.updatedAt || 0);
+      const localUpdatedAt = Number(localExisting?.updatedAt || 0);
+
+      if (
+        !localExisting ||
+        localExisting.syncStatus !== 'pending' ||
+        remoteUpdatedAt > localUpdatedAt
+      ) {
         const billetageRow: Billetage = {
           id,
           type: raw.type === 'personal' ? 'personal' : 'business',
@@ -110,8 +150,17 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of repSnap.docs) {
       const remoteData = docSnap.data() as LocalReport;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('report', id)) continue;
+
       const localExisting = await db.reports.get(id);
-      if (!localExisting || localExisting.syncStatus !== 'pending') {
+      const remoteUpdatedAt = Number(remoteData.updatedAt || 0);
+      const localUpdatedAt = Number(localExisting?.updatedAt || 0);
+
+      if (
+        !localExisting ||
+        localExisting.syncStatus !== 'pending' ||
+        remoteUpdatedAt > localUpdatedAt
+      ) {
         await db.reports.put({
           ...remoteData,
           id,
@@ -129,6 +178,8 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of msgSnap.docs) {
       const remoteData = docSnap.data() as LocalChatMessage;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('chatMessage', id)) continue;
+
       const localExisting = await db.chatMessages.get(id);
       if (!localExisting) {
         await db.chatMessages.put({
@@ -162,8 +213,17 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of notifSnap.docs) {
       const remoteData = docSnap.data() as LocalBroadcast;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('broadcast', id)) continue;
+
       const localExisting = await db.broadcasts.get(id);
-      if (!localExisting || localExisting.syncStatus !== 'pending') {
+      const remoteUpdatedAt = Number(remoteData.updatedAt || 0);
+      const localUpdatedAt = Number(localExisting?.updatedAt || 0);
+
+      if (
+        !localExisting ||
+        localExisting.syncStatus !== 'pending' ||
+        remoteUpdatedAt > localUpdatedAt
+      ) {
         await db.broadcasts.put({
           ...remoteData,
           id,
@@ -181,8 +241,17 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of debtSnap.docs) {
       const remoteData = docSnap.data() as LocalDebt;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('debt', id)) continue;
+
       const localExisting = await db.debts.get(id);
-      if (!localExisting || localExisting.syncStatus !== 'pending') {
+      const remoteUpdatedAt = Number(remoteData.updatedAt || 0);
+      const localUpdatedAt = Number(localExisting?.updatedAt || 0);
+
+      if (
+        !localExisting ||
+        localExisting.syncStatus !== 'pending' ||
+        remoteUpdatedAt > localUpdatedAt
+      ) {
         await db.debts.put({
           ...remoteData,
           id,
@@ -200,8 +269,17 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of trfSnap.docs) {
       const remoteData = docSnap.data() as LocalInterAgencyTransfer;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('interAgencyTransfer', id)) continue;
+
       const localExisting = await db.interAgencyTransfers.get(id);
-      if (!localExisting || localExisting.syncStatus !== 'pending') {
+      const remoteUpdatedAt = Number(remoteData.updatedAt || 0);
+      const localUpdatedAt = Number(localExisting?.updatedAt || 0);
+
+      if (
+        !localExisting ||
+        localExisting.syncStatus !== 'pending' ||
+        remoteUpdatedAt > localUpdatedAt
+      ) {
         await db.interAgencyTransfers.put({
           ...remoteData,
           id,
@@ -219,6 +297,8 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of salSnap.docs) {
       const remoteData = docSnap.data() as LocalSalaryRecord;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('salary', id)) continue;
+
       const localExisting = await db.salaries.get(id);
       if (
         !localExisting ||
@@ -242,6 +322,8 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of clmSnap.docs) {
       const remoteData = docSnap.data() as LocalSalaryClaim;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('salaryClaim', id)) continue;
+
       const localExisting = await db.salaryClaims.get(id);
       if (
         !localExisting ||
@@ -265,6 +347,8 @@ async function pullRemoteDataToLocal(): Promise<void> {
     for (const docSnap of advSnap.docs) {
       const remoteData = docSnap.data() as LocalSalaryAdvance;
       const id = remoteData.id || docSnap.id;
+      if (await isPendingDelete('salaryAdvance', id)) continue;
+
       const localExisting = await db.salaryAdvances.get(id);
       if (
         !localExisting ||
@@ -577,17 +661,59 @@ export async function processSyncQueue(): Promise<{
   let errors = 0;
 
   try {
+    // 1. Récupération des éléments bloqués en 'processing' (coupure inattendue, rechargement)
+    const stuckItems = await db.syncQueue
+      .where('status')
+      .equals('processing')
+      .toArray();
+
+    for (const stuck of stuckItems) {
+      if (stuck.id) {
+        await db.syncQueue.update(stuck.id, {
+          status: 'pending',
+          lastError: stuck.lastError || 'Reprise après interruption inattendue',
+          updatedAt: Date.now(),
+        });
+      }
+    }
+
+    // 2. Extraction des éléments éligibles
     const pendingItems = await db.syncQueue
       .where('status')
       .anyOf('pending', 'failed')
       .toArray();
 
+    // 3. Déduplication idempotente : si plusieurs actions concernent le même document, exécuter la plus récente
+    const queueMap = new Map<string, SyncQueueItem>();
     for (const item of pendingItems) {
       if (!item.id) continue;
-
       if (item.attempts >= MAX_ATTEMPTS && item.status === 'failed') {
         continue;
       }
+      const key = `${item.entity}:${item.entityId}`;
+      const existing = queueMap.get(key);
+      if (!existing || (item.id && existing.id && item.id > existing.id)) {
+        if (existing && existing.id) {
+          await db.syncQueue.update(existing.id, {
+            status: 'completed',
+            updatedAt: Date.now(),
+            lastError: 'Consolidé dans une opération ultérieure',
+          });
+        }
+        queueMap.set(key, item);
+      } else {
+        await db.syncQueue.update(item.id, {
+          status: 'completed',
+          updatedAt: Date.now(),
+          lastError: 'Consolidé dans une opération ultérieure',
+        });
+      }
+    }
+
+    const itemsToProcess = Array.from(queueMap.values());
+
+    for (const item of itemsToProcess) {
+      if (!item.id) continue;
 
       await db.syncQueue.update(item.id, {
         status: 'processing',

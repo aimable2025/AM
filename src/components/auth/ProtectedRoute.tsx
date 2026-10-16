@@ -30,12 +30,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // L'Administrateur Système et le Directeur Général sont des autorités d'office
-  const isPrivilegedRole =
-    user.role === 'administrateur_systeme' || user.role === 'directeur_general';
+  // Blocage absolu des comptes suspendus, désactivés ou rejetés
+  if (
+    user.status === 'suspended' ||
+    user.status === 'disabled' ||
+    user.status === 'rejected'
+  ) {
+    return <Navigate to="/validation-en-attente" replace />;
+  }
 
-  // Si le compte n'est pas approuvé ET n'est pas un rôle d'autorité
-  if (!user.isApproved && !isPrivilegedRole) {
+  // Vérification de l'approbation du compte
+  if (!user.isApproved) {
     return <Navigate to="/validation-en-attente" replace />;
   }
 

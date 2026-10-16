@@ -24,6 +24,7 @@ import {
   type PendingUserProfileInput,
 } from '../services/UserProfileService';
 import type {
+  AccountStatus,
   AppUser,
   PublicRegistrationRole,
   UserRole,
@@ -71,37 +72,29 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 const STORAGE_KEY = 'ets_amani_session_user';
 
-// Helper interne pour normaliser les rôles et permissions
+// Helper interne pour normaliser les rôles et permissions sans contourner les statuts de suspension
 const normalizeUserPermissions = (rawUser: AppUser): AppUser => {
-  const normalizedRole = rawUser.role ? rawUser.role.trim().toLowerCase() : '';
-  if (normalizedRole === 'administrateur_systeme') {
-    return {
-      ...rawUser,
-      role: normalizedRole as UserRole,
-      isApproved: true,
-      status: 'active',
-      registrationStatus: 'approved',
-    };
-  }
+  const normalizedRole = rawUser.role
+    ? (rawUser.role.trim().toLowerCase() as UserRole)
+    : ('client' as UserRole);
 
-  if (normalizedRole === 'directeur_general') {
-    const preservedStatus =
-      rawUser.status === 'suspended' ||
-      rawUser.status === 'disabled'
-        ? rawUser.status
-        : 'active';
-    return {
-      ...rawUser,
-      role: normalizedRole as UserRole,
-      isApproved: preservedStatus !== 'disabled',
-      status: preservedStatus,
-      registrationStatus: 'approved',
-    };
-  }
+  const rawStatus = rawUser.status ? rawUser.status.trim().toLowerCase() : 'pending';
+  const isSuspendedOrDisabled =
+    rawStatus === 'suspended' ||
+    rawStatus === 'disabled' ||
+    rawStatus === 'rejected';
+
+  const effectiveStatus = isSuspendedOrDisabled
+    ? (rawStatus as AccountStatus)
+    : rawStatus === 'active' || rawStatus === 'approved'
+    ? 'active'
+    : 'pending';
 
   return {
     ...rawUser,
-    role: normalizedRole as UserRole,
+    role: normalizedRole,
+    status: effectiveStatus,
+    isApproved: !isSuspendedOrDisabled && rawUser.isApproved === true,
   };
 };
 
@@ -187,6 +180,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const profile = await getUserProfile(userCredential.user.uid);
           if (profile) {
             const normalized = normalizeUserPermissions(profile);
+            if (normalized.status === 'suspended' || normalized.status === 'disabled' || normalized.status === 'rejected') {
+              await firebaseSignOut(auth);
+              setUser(null);
+              localStorage.removeItem(STORAGE_KEY);
+              throw new Error('Votre compte est suspendu ou désactivé par la Direction. Veuillez contacter l administrateur.');
+            }
             setUser(normalized);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
             return;
@@ -198,7 +197,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (cached) {
               const parsed = JSON.parse(cached) as AppUser;
               if (parsed.email?.toLowerCase() === normalizedEmail) {
-                setUser(normalizeUserPermissions(parsed));
+                const normalized = normalizeUserPermissions(parsed);
+                if (normalized.status === 'suspended' || normalized.status === 'disabled') {
+                  throw new Error('Compte suspendu ou révoqué.');
+                }
+                setUser(normalized);
                 return;
               }
             }
@@ -212,7 +215,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (cached) {
           const parsed = JSON.parse(cached) as AppUser;
           if (parsed.email?.toLowerCase() === normalizedEmail) {
-            setUser(normalizeUserPermissions(parsed));
+            const normalized = normalizeUserPermissions(parsed);
+            if (normalized.status === 'suspended' || normalized.status === 'disabled') {
+              throw new Error('Compte suspendu ou révoqué.');
+            }
+            setUser(normalized);
             return;
           }
         }
@@ -451,15 +458,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextValue>(() => {
     const rawRole = user?.role || '';
     const normalizedRole = rawRole.trim().toLowerCase();
-    const isPrivileged = normalizedRole === 'administrateur_systeme' || normalizedRole === 'directeur_general';
+    const isSuspendedOrDisabled =
+      user?.status === 'suspended' ||
+      user?.status === 'disabled' ||
+      user?.status === 'rejected';
+
+    const isPrivileged =
+      (normalizedRole === 'administrateur_systeme' ||
+        normalizedRole === 'directeur_general') &&
+      !isSuspendedOrDisabled &&
+      user?.isApproved === true;
 
     const canAccessProtectedModules =
       !!user &&
-      (isPrivileged ||
-        (user.isApproved && (user.status === 'active' || user.status === 'approved')));
+      !isSuspendedOrDisabled &&
+      user.isApproved === true &&
+      (user.status === 'active' || user.status === 'approved');
 
     const hasPermission = (permission: string) => {
-      if (!user) return false;
+      if (!user || isSuspendedOrDisabled || !user.isApproved) return false;
       if (isPrivileged) return true;
       if (user.permissions?.includes('*') || user.permissions?.includes(permission)) return true;
       return false;

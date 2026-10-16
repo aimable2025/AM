@@ -1,8 +1,12 @@
 export type SmsOperationStatus =
-  | 'pending'
-  | 'processed'
-  | 'matched'
-  | 'flagged';
+  | 'received'    // SMS reçu du réseau
+  | 'analyzed'    // SMS analysé
+  | 'identified'  // Opération identifiée
+  | 'matched'     // Opération rapprochée avec une transaction
+  | 'validated'   // Opération validée par supervision
+  | 'pending'     // En attente (rétrocompatibilité)
+  | 'processed'   // Traité (rétrocompatibilité)
+  | 'flagged';    // Divergence / Anomalie signalée
 
 export interface SmsOperation {
   id: string;
@@ -23,6 +27,12 @@ export interface SmsOperation {
   receivedAt: number;
   processedAt?: number;
   status: SmsOperationStatus;
+  reconciliationStatus?: 'unmatched' | 'matched' | 'discrepancy' | 'validated';
+  reconciledOperationId?: string | null;
+  reconciledBy?: string | null;
+  reconciledAt?: number | null;
+  discrepancyReason?: string | null;
+  validationNotes?: string | null;
   syncStatus:
     | 'pending'
     | 'synced'
@@ -30,3 +40,4 @@ export interface SmsOperation {
   createdAt: number;
   updatedAt: number;
 }
+

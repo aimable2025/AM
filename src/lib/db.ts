@@ -123,10 +123,20 @@ export interface LocalSmsOperation {
   receivedAt: number;
   processedAt?: number;
   status:
+    | 'received'
+    | 'analyzed'
+    | 'identified'
+    | 'matched'
+    | 'validated'
     | 'pending'
     | 'processed'
-    | 'matched'
     | 'flagged';
+  reconciliationStatus?: 'unmatched' | 'matched' | 'discrepancy' | 'validated';
+  reconciledOperationId?: string | null;
+  reconciledBy?: string | null;
+  reconciledAt?: number | null;
+  discrepancyReason?: string | null;
+  validationNotes?: string | null;
   syncStatus:
     | 'pending'
     | 'synced'

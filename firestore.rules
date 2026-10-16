@@ -1544,31 +1544,86 @@ match /auditLogs/{logId} {
    ========================================================= */
 
 match /operations/{operationId} {
-  allow read: if isActiveUser();
-
-  allow create, update: if
+  allow read: if
     isSystemAdmin()
     ||
     isDG()
     ||
-    isAdministrateurAgence()
+    (
+      (isAdministrateurAgence() || isAgent())
+      &&
+      resource.data.get('agencyId', null) == currentAgencyId()
+    )
     ||
-    isAgent();
+    (
+      (isClient() || isAbonne())
+      &&
+      (
+        resource.data.get('clientUid', null) == request.auth.uid
+        ||
+        resource.data.get('senderId', null) == request.auth.uid
+      )
+    );
+
+  allow create: if
+    isSystemAdmin()
+    ||
+    isDG()
+    ||
+    (
+      (isAdministrateurAgence() || isAgent())
+      &&
+      request.resource.data.get('agencyId', null) == currentAgencyId()
+    );
+
+  allow update: if
+    isSystemAdmin()
+    ||
+    isDG()
+    ||
+    (
+      (isAdministrateurAgence() || isAgent())
+      &&
+      resource.data.get('agencyId', null) == currentAgencyId()
+      &&
+      request.resource.data.get('agencyId', null) == resource.data.get('agencyId', null)
+      &&
+      (
+        resource.data.get('status', '') != 'validated'
+        ||
+        (
+          request.resource.data.get('amount', null) == resource.data.get('amount', null)
+          &&
+          request.resource.data.get('currency', null) == resource.data.get('currency', null)
+        )
+      )
+    );
 
   allow delete: if isSystemAdmin() || isDG();
 }
 
 match /operationAssignments/{assignmentId} {
-  allow read: if isActiveUser();
+  allow read: if
+    isSystemAdmin()
+    ||
+    isDG()
+    ||
+    (
+      (isAdministrateurAgence() || isAgent())
+      &&
+      resource.data.get('agencyId', null) == currentAgencyId()
+    );
 
   allow create, update: if
     isSystemAdmin()
     ||
     isDG()
     ||
-    isAdministrateurAgence()
-    ||
-    isAgent();
+    (
+      (isAdministrateurAgence() || isAgent())
+      &&
+      request.resource.data.get('agencyId', null) == currentAgencyId()
+    );
 
   allow delete: if isSystemAdmin() || isDG();
 }
@@ -1615,14 +1670,35 @@ match /interAgencyTransfers/{transferId} {
       )
     );
 
-  allow create, update: if
+  allow create: if
     isSystemAdmin()
     ||
     isDG()
     ||
-    isAdministrateurAgence()
+    (
+      (isAdministrateurAgence() || isAgent())
+      &&
+      request.resource.data.get('sourceAgencyId', null) == currentAgencyId()
+    );
+
+  allow update: if
+    isSystemAdmin()
     ||
-    isAgent();
+    isDG()
+    ||
+    (
+      (isAdministrateurAgence() || isAgent())
+      &&
+      (
+        resource.data.get('sourceAgencyId', null) == currentAgencyId()
+        ||
+        resource.data.get('targetAgencyId', null) == currentAgencyId()
+      )
+      &&
+      request.resource.data.get('sourceAgencyId', null) == resource.data.get('sourceAgencyId', null)
+      &&
+      request.resource.data.get('amount', null) == resource.data.get('amount', null)
+    );
 
   allow delete: if isSystemAdmin() || isDG();
 }
@@ -1634,16 +1710,61 @@ match /interAgencyTransfers/{transferId} {
 
 match /messages/{messageId} {
 
-  allow read, create: if isActiveUser() || isSignedIn();
+  allow read: if
+    isSystemAdmin()
+    ||
+    isDG()
+    ||
+    (
+      isActiveUser()
+      &&
+      (
+        resource.data.get('channelType', '') in ['global', 'service']
+        ||
+        (
+          resource.data.get('channelType', '') == 'agency'
+          && resource.data.get('agencyId', null) == currentAgencyId()
+        )
+        ||
+        resource.data.get('senderId', null) == request.auth.uid
+        ||
+        resource.data.get('recipientId', null) == request.auth.uid
+        ||
+        (
+          'groupParticipantIds' in resource.data
+          && request.auth.uid in resource.data.groupParticipantIds
+        )
+      )
+    );
 
-  allow update: if isActiveUser() || isSignedIn();
+  allow create: if
+    isActiveUser()
+    && request.resource.data.get('senderId', null) == request.auth.uid
+    && (
+      isSystemAdmin()
+      || isDG()
+      || request.resource.data.get('agencyId', null) == null
+      || request.resource.data.get('agencyId', null) == currentAgencyId()
+    );
+
+  allow update: if
+    isActiveUser()
+    && (
+      isSystemAdmin()
+      || isDG()
+      || resource.data.get('senderId', null) == request.auth.uid
+      || (
+        request.resource.data.get('content', null) == resource.data.get('content', null)
+        && request.resource.data.get('senderId', null) == resource.data.get('senderId', null)
+      )
+    );
 
   allow delete: if
     isSystemAdmin()
     ||
     isDG()
     ||
-    ((isActiveUser() || isSignedIn()) && resource.data.senderId == request.auth.uid);
+    (isActiveUser() && resource.data.senderId == request.auth.uid);
 }
 
 
@@ -1866,11 +1987,35 @@ match /smsOperations/{operationId} {
 
 match /notifications/{notificationId} {
 
-  allow read: if isActiveUser();
+  allow read: if
+    isSystemAdmin()
+    || isDG()
+    || (
+      isActiveUser()
+      && (
+        resource.data.get('targetType', 'all') == 'all'
+        || resource.data.get('targetAgencyId', null) == currentAgencyId()
+        || resource.data.get('targetRole', null) == currentUserData().get('role', null)
+      )
+    );
 
-  allow create: if isActiveUser();
+  allow create: if
+    isSystemAdmin()
+    || isDG()
+    || (
+      isAdministrateurAgence()
+      && request.resource.data.get('targetAgencyId', null) == currentAgencyId()
+    );
 
-  allow update: if isActiveUser();
+  allow update: if
+    isSystemAdmin()
+    || isDG()
+    || (
+      // Confirmation de lecture / accusé par un utilisateur actif
+      isActiveUser()
+      && request.resource.data.get('title', null) == resource.data.get('title', null)
+      && request.resource.data.get('message', null) == resource.data.get('message', null)
+    );
 
   allow delete: if isSystemAdmin() || isDG();
 }
@@ -2029,48 +2174,6 @@ match /salaryAdvances/{advanceId} {
 }
 
 
-/* =========================================================
-   DETTES & TRANSFERTS INTER-AGENCES
-   ========================================================= */
-
-match /debts/{debtId} {
-  allow read: if
-    isSystemAdmin()
-    ||
-    isDG()
-    ||
-    (isActiveUser() && resource.data.get('agencyId', null) == currentAgencyId());
-
-  allow create, update: if
-    isSystemAdmin()
-    ||
-    isDG()
-    ||
-    (isActiveUser() && request.resource.data.get('agencyId', null) == currentAgencyId());
-
-  allow delete: if isSystemAdmin() || isDG();
-}
-
-match /interAgencyTransfers/{transferId} {
-  allow read: if
-    isSystemAdmin()
-    ||
-    isDG()
-    ||
-    (
-      isActiveUser()
-      &&
-      (
-        resource.data.get('sourceAgencyId', null) == currentAgencyId()
-        ||
-        resource.data.get('targetAgencyId', null) == currentAgencyId()
-      )
-    );
-
-  allow create, update: if isActiveUser();
-
-  allow delete: if isSystemAdmin() || isDG();
-}
 
 
 /* =========================================================

@@ -43,16 +43,21 @@ export default function ApprovalPendingPage() {
         return;
       }
 
-      const isPrivileged =
-        user?.role === 'administrateur_systeme' || user?.role === 'directeur_general';
-
-      const isAccountApproved =
+      const isAccountActiveAndApproved =
         user?.isApproved && (user?.status === 'active' || user?.status === 'approved');
 
-      if (isPrivileged || isAccountApproved) {
+      if (isAccountActiveAndApproved) {
         window.location.href = '/';
       } else {
-        alert("Votre compte n'a pas encore été validé par la Direction.");
+        alert(
+          user?.status === 'suspended'
+            ? 'Votre compte a été suspendu par la Direction.'
+            : user?.status === 'disabled'
+            ? 'Votre compte a été désactivé.'
+            : user?.status === 'rejected'
+            ? 'Votre demande d inscription a été rejetée.'
+            : "Votre compte n'a pas encore été validé par la Direction."
+        );
       }
     } catch (err) {
       console.error('[Ets AMANI] Erreur lors du rafraîchissement :', err);
@@ -78,6 +83,10 @@ export default function ApprovalPendingPage() {
     }
   };
 
+  const isSuspended = user?.status === 'suspended';
+  const isDisabled = user?.status === 'disabled';
+  const isRejected = user?.status === 'rejected';
+
   return (
     <div className="flex min-h-full flex-1 items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl">
@@ -88,15 +97,33 @@ export default function ApprovalPendingPage() {
             className="h-14 w-14 rounded-2xl object-contain bg-slate-950 p-2 shadow-md ring-1 ring-slate-800"
           />
         </div>
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-4 ring-amber-50/50">
+        <div
+          className={`mx-auto flex h-12 w-12 items-center justify-center rounded-2xl ${
+            isSuspended || isDisabled || isRejected
+              ? 'bg-red-50 text-red-600 ring-4 ring-red-50/50'
+              : 'bg-amber-50 text-amber-600 ring-4 ring-amber-50/50'
+          }`}
+        >
           <Clock className="h-6 w-6" />
         </div>
 
         <h1 className="mt-6 text-xl font-bold text-slate-900">
-          Validation en attente
+          {isSuspended
+            ? 'Compte suspendu'
+            : isDisabled
+            ? 'Compte désactivé'
+            : isRejected
+            ? 'Demande rejetée'
+            : 'Validation en attente'}
         </h1>
         <p className="mt-2 text-xs leading-5 text-slate-500">
-          Votre compte (<strong>{user?.displayName || user?.email || 'Enregistré'}</strong>) a été enregistré avec succès. Pour des raisons réglementaires et de sécurité des opérations financières, l'activation finale doit être approuvée par la Direction ou l'Administrateur de votre agence.
+          {isSuspended
+            ? 'Votre compte a été suspendu par mesure de sécurité ou décision de la Direction. Veuillez contacter votre responsable hiérarchique.'
+            : isDisabled
+            ? 'Ce compte utilisateur a été désactivé. L accès aux modules de gestion est verrouillé.'
+            : isRejected
+            ? 'Votre demande d inscription a été rejetée par la Direction. Veuillez contacter votre agence de rattachement.'
+            : `Votre compte (${user?.displayName || user?.email || 'Enregistré'}) a été enregistré avec succès. Pour des raisons réglementaires et de sécurité des opérations financières, l activation finale doit être approuvée par la Direction ou l Administrateur de votre agence.`}
         </p>
 
         <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-xs text-left space-y-3 border border-slate-200/80">
