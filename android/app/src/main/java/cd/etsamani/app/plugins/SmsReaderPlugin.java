@@ -1,6 +1,7 @@
 package cd.etsamani.app.plugins;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.telephony.SubscriptionManager;
