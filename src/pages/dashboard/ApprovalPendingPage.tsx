@@ -32,10 +32,13 @@ export default function ApprovalPendingPage() {
     }
   };
 
+  const [statusFeedback, setStatusFeedback] = useState<string | null>(null);
+
   // Action : Rafraîchir le statut et vérifier les droits
   const handleRefresh = async () => {
     try {
       setIsRefreshing(true);
+      setStatusFeedback(null);
       if (refreshUser) {
         await refreshUser();
       } else {
@@ -49,7 +52,7 @@ export default function ApprovalPendingPage() {
       if (isAccountActiveAndApproved) {
         window.location.href = '/';
       } else {
-        alert(
+        setStatusFeedback(
           user?.status === 'suspended'
             ? 'Votre compte a été suspendu par la Direction.'
             : user?.status === 'disabled'
@@ -174,12 +177,18 @@ export default function ApprovalPendingPage() {
           </div>
         </div>
 
+        {statusFeedback && (
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 text-left animate-in fade-in duration-200">
+            {statusFeedback}
+          </div>
+        )}
+
         <div className="mt-6 flex flex-col gap-2">
           <button
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-sm hover:bg-slate-800 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-sm hover:bg-slate-800 disabled:opacity-50 transition"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? 'Vérification...' : 'Vérifier à nouveau'}
@@ -188,16 +197,21 @@ export default function ApprovalPendingPage() {
             type="button"
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
           >
             <LogOut className="h-4 w-4" />
             {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
           </button>
         </div>
 
-        <div className="mt-6 border-t border-slate-100 pt-4 flex items-center justify-center gap-2 text-[11px] text-slate-400">
-          <Phone className="h-3.5 w-3.5" />
-          <span>Assistance Ets AMANI : +243 992 294 852</span>
+        <div className="mt-6 border-t border-slate-100 pt-4 flex flex-col items-center justify-center gap-1.5 text-[11px] text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <Phone className="h-3.5 w-3.5" />
+            <span>Assistance Ets AMANI : +243 992 294 852</span>
+          </div>
+          <p className="text-[10px] text-slate-400 font-medium">
+            « Ets AMANI — Ensemble, plus connectés, plus efficaces »
+          </p>
         </div>
       </div>
     </div>

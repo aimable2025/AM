@@ -21,6 +21,7 @@ import {
   UserPlus,
   Users,
   Wifi,
+  X,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -28,6 +29,12 @@ import AppLayout from '../../components/layout/AppLayout';
 import UserAvatar from '../../components/common/UserAvatar';
 import DashboardModuleCard from '../../components/dashboard/DashboardModuleCard';
 import DashboardModuleGrid from '../../components/dashboard/DashboardModuleGrid';
+import WorkspaceNavigationHeader, {
+  type WorkspaceTab,
+} from '../../components/dashboard/WorkspaceNavigationHeader';
+import DashboardToolbar, {
+  type DashboardViewMode,
+} from '../../components/dashboard/DashboardToolbar';
 import ChatModule from './components/ChatModule';
 import AuditModule from './components/AuditModule';
 import ConnectivityModule from './components/ConnectivityModule';
@@ -60,6 +67,162 @@ type ActiveView =
   | 'security'
   | 'registrations';
 
+const SYSTEM_VIEWS_META: Record<
+  ActiveView,
+  { title: string; description: string; category: string }
+> = {
+  overview: {
+    title: "Vue d'ensemble",
+    description: "Supervision technique, sécurité & gestion des comptes privilégiés",
+    category: "Console",
+  },
+  chat: {
+    title: "Chat Interne & Notes Officielles",
+    description: "Messagerie instantanée interne et diffusion des notes de service",
+    category: "Communication",
+  },
+  dg_governance: {
+    title: "Gouvernance du Directeur Général",
+    description: "Supervision statutaire, nomination, suspension, remplacement et historique du DG",
+    category: "Gouvernance",
+  },
+  agencies: {
+    title: "Réseau des Agences",
+    description: "Gestion des succursales, guichets et administrateurs d'agence",
+    category: "Réseau",
+  },
+  users: {
+    title: "Gestion des Comptes & Rôles",
+    description: "Attribution des privilèges, statuts d'activité et affectations aux agences",
+    category: "Personnel",
+  },
+  registrations: {
+    title: "Demandes d'inscription",
+    description: "Examen des pièces justificatives et approbation des nouveaux comptes",
+    category: "Conformité",
+  },
+  audit: {
+    title: "Journal d'audit système",
+    description: "Traçabilité immuable de l'ensemble des événements techniques et administratifs",
+    category: "Audit & Sécurité",
+  },
+  connectivity: {
+    title: "Moteur Offline & Dexie",
+    description: "Diagnostic de la base de données locale IndexedDB et des files de synchronisation",
+    category: "Infrastructure",
+  },
+  firebase: {
+    title: "Cloud Firestore",
+    description: "État de la connexion et synchronisation avec les collections cloud Firebase",
+    category: "Infrastructure",
+  },
+  config: {
+    title: "Configuration Système",
+    description: "Paramétrage global des modules opérationnels et des fonctionnalités DG",
+    category: "Paramètres",
+  },
+  security: {
+    title: "Politique de Sécurité",
+    description: "Règles d'authentification, durée des sessions et contrôle d'accès",
+    category: "Audit & Sécurité",
+  },
+};
+
+const SYSTEM_MODULE_CARDS: Array<{
+  id: ActiveView;
+  pole: string;
+  title: string;
+  description: string;
+  icon: typeof MessageSquare;
+  variant: 'default' | 'primary' | 'success' | 'warning' | 'danger';
+  badge?: string;
+}> = [
+  {
+    id: 'chat',
+    pole: '01. Gouvernance & Communication',
+    title: 'Chat Interne & Notes Officielles',
+    description: 'Communiquer avec la Direction Générale, les agences, les services et diffuser des notes.',
+    icon: MessageSquare,
+    variant: 'primary',
+  },
+  {
+    id: 'dg_governance',
+    pole: '01. Gouvernance & Communication',
+    title: 'Gouvernance du Directeur Général',
+    description: 'Supervision statutaire, nomination, suspension, remplacement et historique du DG.',
+    icon: Shield,
+    variant: 'warning',
+    badge: 'Statuts DG',
+  },
+  {
+    id: 'agencies',
+    pole: '01. Gouvernance & Communication',
+    title: 'Réseau des Agences',
+    description: 'Création, modification et supervision des succursales et responsables d agence.',
+    icon: Building2,
+    variant: 'primary',
+  },
+  {
+    id: 'users',
+    pole: '02. Personnel & Habilitations',
+    title: 'Gestion des Comptes & Rôles',
+    description: 'Consulter, activer, bloquer et modifier les attributions de privilèges.',
+    icon: Users,
+    variant: 'primary',
+  },
+  {
+    id: 'registrations',
+    pole: '02. Personnel & Habilitations',
+    title: "Demandes d'inscription",
+    description: 'Valider les nouveaux comptes clients et abonnés en attente de vérification.',
+    icon: UserCheck,
+    variant: 'warning',
+    badge: 'Conformité',
+  },
+  {
+    id: 'audit',
+    pole: '03. Audit & Sécurité Immuable',
+    title: "Journal d'audit système",
+    description: 'Traçabilité continue de l ensemble des événements techniques et administratifs.',
+    icon: ShieldCheck,
+    variant: 'danger',
+    badge: 'Immuable',
+  },
+  {
+    id: 'security',
+    pole: '03. Audit & Sécurité Immuable',
+    title: 'Politique de Sécurité',
+    description: 'Expiration des sessions, double facteur obligatoire et forçage de reconnexion.',
+    icon: Shield,
+    variant: 'danger',
+  },
+  {
+    id: 'connectivity',
+    pole: '04. Moteur de Données & Cloud',
+    title: 'Moteur Offline & Synchronisation',
+    description: 'Supervision du stockage local Dexie (IndexedDB) et des files d attente vers Firestore.',
+    icon: Wifi,
+    variant: 'success',
+    badge: 'Offline-First',
+  },
+  {
+    id: 'firebase',
+    pole: '04. Moteur de Données & Cloud',
+    title: 'Infrastructure Cloud Firebase',
+    description: 'Diagnostic des règles d accès, permissions et intégrité des collections distantes.',
+    icon: Flame,
+    variant: 'warning',
+  },
+  {
+    id: 'config',
+    pole: '04. Moteur de Données & Cloud',
+    title: 'Configuration & Modules DG',
+    description: 'Activer ou masquer des modules de gestion pour le Directeur Général.',
+    icon: Sliders,
+    variant: 'default',
+  },
+];
+
 export default function AdministrateurSystemeDashboard() {
   const { user, signOut } = useAuth();
   const [activeView, setActiveView] = useState<ActiveView>('overview');
@@ -69,6 +232,8 @@ export default function AdministrateurSystemeDashboard() {
   const [userSearch, setUserSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [moduleSearch, setModuleSearch] = useState('');
+  const [viewMode, setViewMode] = useState<DashboardViewMode>('grid');
 
   // Modal DG
   const [showDgModal, setShowDgModal] = useState(false);
@@ -92,6 +257,17 @@ export default function AdministrateurSystemeDashboard() {
   const [newUserPassword, setNewUserPassword] = useState('');
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowDgModal(false);
+        setShowAddUserModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const fetchUsers = async () => {
     setLoadingUsers(true);
@@ -243,316 +419,212 @@ export default function AdministrateurSystemeDashboard() {
       }}
     >
       <div className="space-y-6">
-        {/* Banner Admin */}
-        <div className="rounded-3xl border border-slate-900 bg-slate-950 p-6 text-white shadow-xl sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-4 sm:gap-5">
-              <UserAvatar
-                user={user}
-                size="lg"
-                showStatus
-                isOnline={true}
-                className="ring-2 ring-blue-500/50 shadow-lg"
-              />
-              <div>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <h1 className="text-xl font-black tracking-tight sm:text-3xl">
-                    Supervision Système Ets AMANI
-                  </h1>
-                  <span className="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-bold text-blue-300 ring-1 ring-blue-500/30">
-                    Niveau 0 (Root)
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-slate-400">
-                  Compte : <strong>{user?.displayName}</strong> ({user?.email}) • Rôle :{' '}
-                  <span className="uppercase text-blue-400 font-semibold">{user?.role}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowDgModal(true)}
-                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500"
-              >
-                <UserCheck className="h-4 w-4" />
-                Nommer / Remplacer le DG
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAddUserModal(true)}
-                className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white hover:bg-white/20"
-              >
-                <UserPlus className="h-4 w-4" />
-                Créer Utilisateur
-              </button>
-              <button
-                type="button"
-                onClick={() => signOut()}
-                className="flex items-center gap-2 rounded-xl bg-red-500/20 px-4 py-2.5 text-xs font-bold text-red-300 hover:bg-red-500/30"
-              >
-                <LogOut className="h-4 w-4" />
-                Déconnexion
-              </button>
-            </div>
-          </div>
-
-          {/* Carte DG Actuel */}
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-3">
-              {currentDg ? (
-                <UserAvatar
-                  name={currentDg.displayName}
-                  photoURL={currentDg.photoURL}
-                  email={currentDg.email}
-                  size="md"
-                  showStatus
-                  isOnline={currentDg.status === 'active'}
-                />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300 font-black">
-                  DG
-                </div>
-              )}
-              <div>
-                <p className="text-xs uppercase font-bold tracking-wider text-slate-400">
-                  Directeur Général en titre
-                </p>
-                <p className="text-base font-bold text-white">
-                  {currentDg ? currentDg.displayName : 'Aucun DG nommé'}
-                </p>
-                {currentDg && (
-                  <p className="text-xs text-slate-400">
-                    {currentDg.email} • Statut :{' '}
-                    <span className={currentDg.status === 'active' ? 'text-emerald-400' : 'text-amber-400'}>
-                      {currentDg.status === 'active' ? 'Actif' : 'Suspendu / Inactif'}
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveView('dg_governance')}
-              className="rounded-xl bg-amber-400/20 border border-amber-400/30 px-3.5 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-400/30 transition text-left sm:text-right"
-            >
-              Gérer la Gouvernance DG (Suspension, Remplacement, Historique) →
-            </button>
-          </div>
-        </div>
-
-        {feedback && (
-          <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 border border-emerald-200">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-            <p>{feedback}</p>
-          </div>
-        )}
-
-        {/* Navigation rapide des modules */}
-        <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 text-xs font-bold shadow-sm">
-          <button
-            type="button"
-            onClick={() => setActiveView('overview')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'overview'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Vue d'ensemble
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('chat')}
-            className={`flex items-center gap-1.5 rounded-xl px-4 py-2.5 transition ${
-              activeView === 'chat'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-blue-700 bg-blue-50 hover:bg-blue-100'
-            }`}
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            Chat Interne & Notes
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('dg_governance')}
-            className={`flex items-center gap-1.5 rounded-xl px-4 py-2.5 transition ${
-              activeView === 'dg_governance'
-                ? 'bg-amber-500 text-white shadow-sm'
-                : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
-            }`}
-          >
-            <Shield className="h-3.5 w-3.5" />
-            Gouvernance DG
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('agencies')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'agencies'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Agences ({agencies.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('users')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'users'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Comptes & Rôles ({systemUsers.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('registrations')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'registrations'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Inscriptions en attente
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('audit')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'audit'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Journal d'audit
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('connectivity')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'connectivity'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Moteur Offline & Dexie
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('firebase')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'firebase'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Cloud Firestore
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('config')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'config'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Configuration Système
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('security')}
-            className={`rounded-xl px-4 py-2.5 transition ${
-              activeView === 'security'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Politique de Sécurité
-          </button>
-        </div>
-
-        {/* VUE OVERVIEW */}
-        {activeView === 'overview' && (
+        {/* MODE 1 : VUE D'ENSEMBLE (TABLEAU DE BORD CENTRAL) */}
+        {activeView === 'overview' ? (
           <div className="space-y-6">
-            <DashboardModuleGrid columns={3}>
-              <DashboardModuleCard
-                title="Chat Interne & Notes Officielles"
-                description="Communiquer avec la Direction Générale, les agences, les services et diffuser des notes."
-                icon={MessageSquare}
-                variant="primary"
-                onClick={() => setActiveView('chat')}
-              />
-              <DashboardModuleCard
-                title="Gouvernance du Directeur Général"
-                description="Supervision statutaire, nomination, suspension, remplacement et historique du DG."
-                icon={Shield}
-                variant="warning"
-                onClick={() => setActiveView('dg_governance')}
-              />
-              <DashboardModuleCard
-                title="Réseau des Agences"
-                description="Création, modification et supervision des succursales et responsables d'agence."
-                icon={Building2}
-                variant="primary"
-                onClick={() => setActiveView('agencies')}
-              />
-              <DashboardModuleCard
-                title="Gestion des Comptes & Rôles"
-                description="Consulter, activer, bloquer et modifier les attributions de privilèges."
-                icon={Users}
-                variant="primary"
-                onClick={() => setActiveView('users')}
-              />
-              <DashboardModuleCard
-                title="Demandes d'inscription"
-                description="Valider les nouveaux comptes clients et abonnés en attente de vérification."
-                icon={UserCheck}
-                variant="warning"
-                onClick={() => setActiveView('registrations')}
-              />
-              <DashboardModuleCard
-                title="Journal d'audit système"
-                description="Traçabilité continue de l'ensemble des événements techniques et administratifs."
-                icon={ShieldCheck}
-                variant="danger"
-                onClick={() => setActiveView('audit')}
-              />
-              <DashboardModuleCard
-                title="Moteur Offline & Synchronisation"
-                description="Supervision du stockage local Dexie (IndexedDB) et des files d'attente vers Firestore."
-                icon={Wifi}
-                variant="success"
-                onClick={() => setActiveView('connectivity')}
-              />
-              <DashboardModuleCard
-                title="Infrastructure Cloud Firebase"
-                description="Diagnostic des règles d'accès, permissions et intégrité des collections distantes."
-                icon={Flame}
-                variant="warning"
-                onClick={() => setActiveView('firebase')}
-              />
-              <DashboardModuleCard
-                title="Configuration & Modules DG"
-                description="Activer ou masquer des modules de gestion pour le Directeur Général."
-                icon={Sliders}
-                variant="default"
-                onClick={() => setActiveView('config')}
-              />
-              <DashboardModuleCard
-                title="Politique de Sécurité"
-                description="Expiration des sessions, double facteur obligatoire et forçage de reconnexion."
-                icon={Shield}
-                variant="danger"
-                onClick={() => setActiveView('security')}
-              />
-            </DashboardModuleGrid>
+            {/* Banner Admin Root */}
+            <div className="rounded-3xl border border-slate-900 bg-slate-950 p-6 text-white shadow-xl sm:p-8">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-4 sm:gap-5">
+                  <UserAvatar
+                    user={user}
+                    size="lg"
+                    showStatus
+                    isOnline={true}
+                    className="ring-2 ring-blue-500/50 shadow-lg"
+                  />
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <h1 className="text-xl font-black tracking-tight sm:text-3xl">
+                        Supervision Système Ets AMANI
+                      </h1>
+                      <span className="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-bold text-blue-300 ring-1 ring-blue-500/30">
+                        Niveau 0 (Root)
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-400">
+                      Compte : <strong>{user?.displayName}</strong> ({user?.email}) • Rôle :{' '}
+                      <span className="uppercase text-blue-400 font-semibold">{user?.role}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDgModal(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500 transition"
+                  >
+                    <UserCheck className="h-4 w-4" />
+                    Nommer / Remplacer le DG
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddUserModal(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white hover:bg-white/20 transition"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    Créer Utilisateur
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="inline-flex items-center gap-2 rounded-xl bg-red-500/20 px-4 py-2.5 text-xs font-bold text-red-300 hover:bg-red-500/30 transition"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Déconnexion
+                  </button>
+                </div>
+              </div>
+
+              {/* Carte DG Actuel */}
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {currentDg ? (
+                    <UserAvatar
+                      name={currentDg.displayName}
+                      photoURL={currentDg.photoURL}
+                      email={currentDg.email}
+                      size="md"
+                      showStatus
+                      isOnline={currentDg.status === 'active'}
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300 font-black">
+                      DG
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs uppercase font-bold tracking-wider text-slate-400">
+                      Directeur Général en titre
+                    </p>
+                    <p className="text-base font-bold text-white">
+                      {currentDg ? currentDg.displayName : 'Aucun DG nommé'}
+                    </p>
+                    {currentDg && (
+                      <p className="text-xs text-slate-400">
+                        {currentDg.email} • Statut :{' '}
+                        <span className={currentDg.status === 'active' ? 'text-emerald-400' : 'text-amber-400'}>
+                          {currentDg.status === 'active' ? 'Actif' : 'Suspendu / Inactif'}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('dg_governance')}
+                  className="rounded-xl bg-amber-400/20 border border-amber-400/30 px-3.5 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-400/30 transition text-left sm:text-right"
+                >
+                  Gérer la Gouvernance DG (Suspension, Remplacement, Historique) →
+                </button>
+              </div>
+            </div>
+
+            {feedback && (
+              <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 border border-emerald-200">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <p>{feedback}</p>
+              </div>
+            )}
+
+            {/* Barre d'outils et recherche des modules */}
+            <DashboardToolbar
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              searchValue={moduleSearch}
+              onSearchChange={setModuleSearch}
+              searchPlaceholder="Rechercher un module système..."
+            />
+
+            {/* Pôles fonctionnels des modules */}
+            <div className="space-y-8">
+              {Array.from(new Set(SYSTEM_MODULE_CARDS.map((m) => m.pole))).map((pole) => {
+                const poleModules = SYSTEM_MODULE_CARDS.filter(
+                  (m) =>
+                    m.pole === pole &&
+                    (!moduleSearch.trim() ||
+                      m.title.toLowerCase().includes(moduleSearch.toLowerCase()) ||
+                      m.description.toLowerCase().includes(moduleSearch.toLowerCase()))
+                );
+                if (poleModules.length === 0) return null;
+
+                return (
+                  <div key={pole} className="space-y-3.5">
+                    <div className="border-b border-slate-200 pb-2">
+                      <h2 className="text-sm font-bold tracking-tight text-slate-800">
+                        {pole}
+                      </h2>
+                    </div>
+                    <DashboardModuleGrid columns={3}>
+                      {poleModules.map((item) => (
+                        <DashboardModuleCard
+                          key={item.id}
+                          title={item.title}
+                          description={item.description}
+                          icon={item.icon}
+                          variant={item.variant}
+                          badge={item.badge}
+                          onClick={() => {
+                            setActiveView(item.id);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                        />
+                      ))}
+                    </DashboardModuleGrid>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        )}
+        ) : (
+          /* MODE 2 : ESPACE DE TRAVAIL IMMÉDIAT DU MODULE SÉLECTIONNÉ */
+          <div className="space-y-4">
+            <WorkspaceNavigationHeader
+              workspaceTitle="Console Système"
+              activeModuleTitle={SYSTEM_VIEWS_META[activeView]?.title || activeView}
+              activeModuleDescription={SYSTEM_VIEWS_META[activeView]?.description}
+              category={SYSTEM_VIEWS_META[activeView]?.category}
+              backLabel="Vue d'ensemble"
+              onBack={() => setActiveView('overview')}
+              tabs={[
+                { id: 'chat', label: 'Chat & Notes', icon: MessageSquare },
+                { id: 'dg_governance', label: 'Gouvernance DG', icon: Shield },
+                { id: 'agencies', label: 'Agences', icon: Building2, badge: agencies.length },
+                { id: 'users', label: 'Comptes & Rôles', icon: Users, badge: systemUsers.length },
+                { id: 'registrations', label: 'Inscriptions', icon: UserCheck },
+                { id: 'audit', label: "Journal d'audit", icon: ShieldCheck },
+                { id: 'connectivity', label: 'Moteur Offline', icon: Wifi },
+                { id: 'firebase', label: 'Cloud Firestore', icon: Flame },
+                { id: 'config', label: 'Configuration', icon: Sliders },
+                { id: 'security', label: 'Sécurité', icon: Shield },
+              ]}
+              activeTabId={activeView}
+              onTabChange={(tabId) => {
+                setActiveView(tabId as ActiveView);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              actions={
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddUserModal(true)}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 hover:bg-slate-50 transition"
+                  >
+                    <UserPlus className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Créer Utilisateur</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDgModal(true)}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500 transition"
+                  >
+                    <UserCheck className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Nommer DG</span>
+                  </button>
+                </div>
+              }
+            />
 
         {/* VUE USERS */}
         {activeView === 'users' && (
@@ -721,19 +793,38 @@ export default function AdministrateurSystemeDashboard() {
         {activeView === 'security' && (
           <SystemSecurityModule onClose={() => setActiveView('overview')} />
         )}
+          </div>
+        )}
 
         {/* Modal DG */}
         {showDgModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-            <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
-              <h3 className="text-lg font-bold text-slate-900">
-                Nomination du Directeur Général
-              </h3>
-              <p className="mt-1 text-xs text-slate-500">
-                Le DG dispose des prérogatives de gestion globale du réseau Ets AMANI.
-              </p>
+          <div
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowDgModal(false);
+            }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4"
+          >
+            <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    Nomination du Directeur Général
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Le DG dispose des prérogatives de gestion globale du réseau Ets AMANI.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDgModal(false)}
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                  title="Fermer (Échap)"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-              <form onSubmit={handleAppointDg} className="mt-4 space-y-3 text-xs">
+              <form onSubmit={handleAppointDg} className="space-y-3 text-xs">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
                     Nom & Prénom du DG *
@@ -820,15 +911,32 @@ export default function AdministrateurSystemeDashboard() {
 
         {/* Modal Créer Utilisateur */}
         {showAddUserModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-            <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
-              <h3 className="text-lg font-bold text-slate-900">
-                Créer un Utilisateur
-              </h3>
-              <p className="mt-1 text-xs text-slate-500">
-                Attribution de tous les rôles métier Ets AMANI (à l'exception de l'Administrateur Système).
-              </p>
-              <form onSubmit={handleCreateUser} className="mt-4 space-y-3 text-xs">
+          <div
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowAddUserModal(false);
+            }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4"
+          >
+            <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    Créer un Utilisateur
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Attribution de tous les rôles métier Ets AMANI (à l'exception de l'Administrateur Système).
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddUserModal(false)}
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                  title="Fermer (Échap)"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <form onSubmit={handleCreateUser} className="space-y-3 text-xs">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
                     Nom complet *

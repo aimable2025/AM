@@ -135,10 +135,20 @@ export default function AppLayout({
       void loadCounts();
     }, 8000);
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowProfileModal(false);
+        setShowNotificationsModal(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       clearInterval(interval);
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [loadCounts]);
 
@@ -238,6 +248,15 @@ export default function AppLayout({
               ].join(' ')}
             >
               {children}
+
+              <footer className="mt-10 border-t border-slate-200/80 pt-5 pb-2 text-center text-xs text-slate-500">
+                <p className="font-semibold text-slate-700 tracking-tight">
+                  Ets AMANI — Ensemble, plus connectés, plus efficaces
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Système de gestion financière, de caisse et de supervision multi-agences • Offline-First
+                </p>
+              </footer>
             </div>
           </main>
 

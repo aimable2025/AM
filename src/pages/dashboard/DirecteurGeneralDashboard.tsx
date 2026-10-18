@@ -20,6 +20,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import UserAvatar from '../../components/common/UserAvatar';
 import DashboardModuleCard from '../../components/dashboard/DashboardModuleCard';
 import DashboardModuleGrid from '../../components/dashboard/DashboardModuleGrid';
+import WorkspaceNavigationHeader from '../../components/dashboard/WorkspaceNavigationHeader';
 import {
    type DashboardViewMode,
 } from '../../components/dashboard/DashboardToolbar';
@@ -335,185 +336,56 @@ export default function DirecteurGeneralDashboard() {
       }}
     >
       <div className="space-y-6">
-        {/* En-tête Exécutif Direction Générale */}
-        <section className="rounded-3xl border border-slate-800 bg-slate-950 p-6 text-white shadow-sm sm:p-7">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex items-start gap-4 sm:items-center sm:gap-5">
-              <UserAvatar
-                user={user}
-                size="lg"
-                showStatus
-                isOnline={!isSuspended}
-                className="ring-2 ring-amber-400/60 shadow-md"
-              />
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-400">
-                  <span>Poste Exécutif Central</span>
-                  <span aria-hidden="true">·</span>
-                  <span
-                    className={
-                      isSuspended
-                        ? 'font-semibold text-amber-400'
-                        : 'font-semibold text-emerald-400'
-                    }
-                  >
-                    {isSuspended ? 'Mandat suspendu' : 'Mandat actif'}
-                  </span>
-                  <span aria-hidden="true">·</span>
-                  <span>Synchronisation Offline-First</span>
-                </div>
-                <h1 className="mt-1 text-xl font-bold tracking-tight text-white sm:text-2xl">
-                  Direction Générale — {user?.displayName || 'Directeur Général'}
-                </h1>
-                <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400 sm:text-sm">
-                  Supervision consolidée des agences, autorisation de la paie, contrôle des liquidités et gouvernance réseau.
-                </p>
-              </div>
-            </div>
-
-            {/* Dock d'actions rapides exécutives */}
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                disabled={isSuspended}
-                onClick={() => handleOpenModule('billetage')}
-                className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-amber-300 disabled:opacity-50"
-              >
-                <Coins className="h-4 w-4" />
-                Billetage
-              </button>
-              <button
-                type="button"
-                disabled={isSuspended}
-                onClick={() => handleOpenModule('salaries-management')}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-50"
-              >
-                <Wallet className="h-4 w-4 text-emerald-400" />
-                Salaires & Paie
-              </button>
-              <button
-                type="button"
-                disabled={isSuspended}
-                onClick={() => handleOpenModule('reports-center')}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-50"
-              >
-                <FileText className="h-4 w-4 text-blue-400" />
-                Rapports
-              </button>
-              <button
-                type="button"
-                disabled={isSuspended}
-                onClick={() => handleOpenModule('operations-management')}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-50"
-              >
-                <ClipboardCheck className="h-4 w-4 text-amber-300" />
-                Missions
-              </button>
-              <button
-                type="button"
-                onClick={() => handleOpenModule('internal-chat')}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15"
-              >
-                <MessageSquare className="h-4 w-4 text-sky-400" />
-                Chat & IA
-              </button>
-              <button
-                type="button"
-                onClick={() => signOut()}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/20"
-                title="Fermer la session"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Déconnexion</span>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Alerte suspension DG */}
-        {isSuspended && (
-          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-900">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-800">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <div className="space-y-1 text-xs">
-                <h3 className="text-sm font-bold text-amber-950">
-                  Votre mandat de Direction Générale est momentanément suspendu
-                </h3>
-                <p className="text-amber-800">
-                  Motif enregistré par l'Administrateur Système :{' '}
-                  <em>« {dgConfig?.suspensionReason || 'Procédure administrative en cours'} »</em>.
-                </p>
-                <p className="text-amber-700">
-                  Les opérations décisionnelles sont verrouillées en consultation seule jusqu'à levée de la suspension.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Ruban des Indicateurs Clés (KPIs cliquables) */}
-        <DirectorGeneralStats
-          totalAgencies={totalAgencies}
-          agenciesSubtitle={agenciesSubtitle}
-          totalAgents={totalAgents}
-          activeOperations={activeOperations}
-          totalBilletageCountedUSD={totalBilletageUSD}
-          totalBilletageCountedCDF={totalBilletageCDF}
-          onSelectModule={handleOpenModule}
-        />
-
-        {/* MODE FOCUS : Lorsqu'un module est ouvert, barre de navigation dédiée + module actif */}
+        {/* MODE FOCUS : Lorsqu'un module est ouvert, affichage immédiat au sommet de la zone de travail */}
         {activeModuleId ? (
           <section className="space-y-4">
-            {/* Barre de contexte du module ouvert */}
-            <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-xs sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setActiveModuleId(null)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Vue d'ensemble DG
-                </button>
-                <div className="hidden h-5 w-px bg-slate-200 sm:block" />
-                {activeModuleMeta && (
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-bold text-slate-900">
-                      {activeModuleMeta.title}
-                    </p>
-                    <p className="truncate text-[11px] text-slate-500">
-                      {activeModuleMeta.description}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Navigation directe entre modules du même pôle */}
-              {siblingModules.length > 1 && (
-                <div className="flex items-center gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1">
-                  {siblingModules.map((mod) => {
-                    const isCurrent = mod.id === activeModuleId;
-                    return (
-                      <button
-                        key={mod.id}
-                        type="button"
-                        onClick={() => handleOpenModule(mod.id)}
-                        className={`whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${
-                          isCurrent
-                            ? 'bg-white text-slate-950 shadow-xs'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        {mod.title}
-                      </button>
-                    );
-                  })}
+            <WorkspaceNavigationHeader
+              workspaceTitle="Direction Générale"
+              activeModuleTitle={activeModuleMeta?.title || activeModuleId}
+              activeModuleDescription={activeModuleMeta?.description}
+              category={
+                activeModuleMeta?.category
+                  ? EXECUTIVE_POLES.find((p) => p.key === activeModuleMeta.category)?.title
+                  : undefined
+              }
+              onBack={() => setActiveModuleId(null)}
+              backLabel="Vue d'ensemble DG"
+              tabs={
+                siblingModules.length > 1
+                  ? siblingModules.map((mod) => ({
+                      id: mod.id,
+                      label: mod.title,
+                      icon: mod.icon,
+                    }))
+                  : availableModules.map((mod) => ({
+                      id: mod.id,
+                      label: mod.title,
+                      icon: mod.icon,
+                    }))
+              }
+              activeTabId={activeModuleId}
+              onTabChange={(id) => handleOpenModule(id)}
+              actions={
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenModule('billetage')}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900 hover:bg-amber-100 transition"
+                  >
+                    <Coins className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Billetage</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 transition"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Déconnexion</span>
+                  </button>
                 </div>
-              )}
-            </div>
+              }
+            />
 
             {/* Conteneur du module ouvert */}
             <div className="relative">
@@ -582,8 +454,137 @@ export default function DirecteurGeneralDashboard() {
             </div>
           </section>
         ) : (
-          /* VUE D'ENSEMBLE STRUCTURÉE PAR PÔLES MÉTIERS */
-          <section className="space-y-6">
+          /* VUE D'ENSEMBLE EXÉCUTIVE STRUCTURÉE PAR PÔLES MÉTIERS */
+          <div className="space-y-6">
+            {/* En-tête Exécutif Direction Générale */}
+            <section className="rounded-3xl border border-slate-800 bg-slate-950 p-6 text-white shadow-sm sm:p-7">
+              <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex items-start gap-4 sm:items-center sm:gap-5">
+                  <UserAvatar
+                    user={user}
+                    size="lg"
+                    showStatus
+                    isOnline={!isSuspended}
+                    className="ring-2 ring-amber-400/60 shadow-md"
+                  />
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-400">
+                      <span>Poste Exécutif Central</span>
+                      <span aria-hidden="true">·</span>
+                      <span
+                        className={
+                          isSuspended
+                            ? 'font-semibold text-amber-400'
+                            : 'font-semibold text-emerald-400'
+                        }
+                      >
+                        {isSuspended ? 'Mandat suspendu' : 'Mandat actif'}
+                      </span>
+                      <span aria-hidden="true">·</span>
+                      <span>Synchronisation Offline-First</span>
+                    </div>
+                    <h1 className="mt-1 text-xl font-bold tracking-tight text-white sm:text-2xl">
+                      Direction Générale — {user?.displayName || 'Directeur Général'}
+                    </h1>
+                    <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400 sm:text-sm">
+                      Supervision consolidée des agences, autorisation de la paie, contrôle des liquidités et gouvernance réseau.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dock d'actions rapides exécutives */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={isSuspended}
+                    onClick={() => handleOpenModule('billetage')}
+                    className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-amber-300 disabled:opacity-50"
+                  >
+                    <Coins className="h-4 w-4" />
+                    Billetage
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSuspended}
+                    onClick={() => handleOpenModule('salaries-management')}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-50"
+                  >
+                    <Wallet className="h-4 w-4 text-emerald-400" />
+                    Salaires & Paie
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSuspended}
+                    onClick={() => handleOpenModule('reports-center')}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-50"
+                  >
+                    <FileText className="h-4 w-4 text-blue-400" />
+                    Rapports
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSuspended}
+                    onClick={() => handleOpenModule('operations-management')}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-50"
+                  >
+                    <ClipboardCheck className="h-4 w-4 text-amber-300" />
+                    Missions
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenModule('internal-chat')}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15"
+                  >
+                    <MessageSquare className="h-4 w-4 text-sky-400" />
+                    Chat & IA
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/20"
+                    title="Fermer la session"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden sm:inline">Déconnexion</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* Alerte suspension DG */}
+            {isSuspended && (
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-900">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-800">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <h3 className="text-sm font-bold text-amber-950">
+                      Votre mandat de Direction Générale est momentanément suspendu
+                    </h3>
+                    <p className="text-amber-800">
+                      Motif enregistré par l'Administrateur Système :{' '}
+                      <em>« {dgConfig?.suspensionReason || 'Procédure administrative en cours'} »</em>.
+                    </p>
+                    <p className="text-amber-700">
+                      Les opérations décisionnelles sont verrouillées en consultation seule jusqu'à levée de la suspension.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Ruban des Indicateurs Clés (KPIs cliquables) */}
+            <DirectorGeneralStats
+              totalAgencies={totalAgencies}
+              agenciesSubtitle={agenciesSubtitle}
+              totalAgents={totalAgents}
+              activeOperations={activeOperations}
+              totalBilletageCountedUSD={totalBilletageUSD}
+              totalBilletageCountedCDF={totalBilletageCDF}
+              onSelectModule={handleOpenModule}
+            />
+
             {/* Barre de commande : Recherche + Filtres par Pôle + Sélecteur Grille / Liste */}
             <div className="flex flex-col gap-3 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs lg:flex-row lg:items-center lg:justify-between">
               {/* Filtres de pôles (responsive sur mobile et desktop) */}
@@ -724,7 +725,7 @@ export default function DirecteurGeneralDashboard() {
             ) : (
               renderModuleItems(visibleModules)
             )}
-          </section>
+          </div>
         )}
       </div>
     </AppLayout>
