@@ -1,0 +1,24 @@
+mutation SeedData @transaction {
+  user_insertMany(data: [
+    { email: "alice@example.com", displayName: "Alice" },
+    { email: "bob@example.com", displayName: "Bob" },
+    { email: "charlie@example.com", displayName: "Charlie" }
+  ])
+  project_insertMany(data: [
+    { name: "Alpha", owner: { id: "00000000-0000-0000-0000-000000000001" } },
+    { name: "Beta", owner: { id: "00000000-0000-0000-0000-000000000002" } }
+  ])
+  task_insertMany(data: [
+    { title: "Design", status: "TODO", project: { id: "00000000-0000-0000-0000-000000000001" }, assigneeId: "00000000-0000-0000-0000-000000000001" },
+    { title: "Code", status: "IN_PROGRESS", project: { id: "00000000-0000-0000-0000-000000000001" }, assigneeId: "00000000-0000-0000-0000-000000000002" },
+    { title: "Test", status: "TODO", project: { id: "00000000-0000-0000-0000-000000000002" }, assigneeId: null }
+  ])
+  comment_insertMany(data: [
+    { content: "Great start!", task: { id: "00000000-0000-0000-0000-000000000001" }, author: { id: "00000000-0000-0000-0000-000000000002" } },
+    { content: "Keep going.", task: { id: "00000000-0000-0000-0000-000000000001" }, author: { id: "00000000-0000-0000-0000-000000000003" } }
+  ])
+  projectMember_insertMany(data: [
+    { project: { id: "00000000-0000-0000-0000-000000000001" }, user: { id: "00000000-0000-0000-0000-000000000001" }, role: "Admin" },
+    { project: { id: "00000000-0000-0000-0000-000000000001" }, user: { id: "00000000-0000-0000-0000-000000000002" }, role: "Member" }
+  ])
+}

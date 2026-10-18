@@ -1,0 +1,169 @@
+[debug] [2026-10-18T13:08:48.489Z] ----------------------------------------------------------------------
+[debug] [2026-10-18T13:08:48.517Z] Command:       /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/firebase init
+[debug] [2026-10-18T13:08:48.519Z] CLI Version:   15.30.0
+[debug] [2026-10-18T13:08:48.519Z] Platform:      android
+[debug] [2026-10-18T13:08:48.520Z] Node Version:  v26.3.1
+[debug] [2026-10-18T13:08:48.522Z] Detected Agent: unknown
+[debug] [2026-10-18T13:08:48.524Z] Time:          Sun Oct 18 2026 15:08:48 GMT+0200 (Central Africa Time)
+[debug] [2026-10-18T13:08:48.526Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-18T13:08:48.712Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /data/data/com.termux/files/home/amini
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[debug] [2026-10-18T13:08:57.789Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-10-18T13:08:57.791Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-10-18T13:10:14.152Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-18T13:10:14.155Z] > authorizing via signed-in user (aimablebunoti@gmail.com)
+[debug] [2026-10-18T13:10:14.163Z] Checked if tokens are valid: false, expires at: 1790499329472
+[debug] [2026-10-18T13:10:14.165Z] Checked if tokens are valid: false, expires at: 1790499329472
+[debug] [2026-10-18T13:10:14.166Z] > refreshing access token with scopes: []
+[debug] [2026-10-18T13:10:14.187Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-10-18T13:10:14.187Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-18T13:10:16.204Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-10-18T13:10:16.205Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-18T13:10:16.228Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2026-10-18T13:10:17.898Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2026-10-18T13:10:17.899Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[info] 
+=== Dataconnect Setup
+[info] i  dataconnect: ensuring required API firebasedataconnect.googleapis.com is enabled... 
+[debug] [2026-10-18T13:10:36.668Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:36.668Z] Checked if tokens are valid: true, expires at: 1792332615206
+[info] i  dataconnect: ensuring required API sqladmin.googleapis.com is enabled... 
+[debug] [2026-10-18T13:10:36.676Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:36.676Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:36.685Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com [none]
+[debug] [2026-10-18T13:10:36.686Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com  x-goog-user-project=ets-amani
+[debug] [2026-10-18T13:10:36.698Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com [none]
+[debug] [2026-10-18T13:10:36.699Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com  x-goog-user-project=ets-amani
+[debug] [2026-10-18T13:10:38.705Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com 200
+[debug] [2026-10-18T13:10:38.706Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com [omitted]
+[warn] ⚠  dataconnect: missing required API firebasedataconnect.googleapis.com. Enabling now... 
+[debug] [2026-10-18T13:10:38.711Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:38.711Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:38.712Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com:enable [none]
+[debug] [2026-10-18T13:10:38.713Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com:enable  x-goog-user-project=ets-amani
+[debug] [2026-10-18T13:10:38.745Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com 200
+[debug] [2026-10-18T13:10:38.746Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com [omitted]
+[warn] ⚠  dataconnect: missing required API sqladmin.googleapis.com. Enabling now... 
+[debug] [2026-10-18T13:10:38.749Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:38.750Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:38.757Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com:enable [none]
+[debug] [2026-10-18T13:10:38.757Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com:enable  x-goog-user-project=ets-amani
+[debug] [2026-10-18T13:10:40.174Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com:enable 200
+[debug] [2026-10-18T13:10:40.174Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/firebasedataconnect.googleapis.com:enable [omitted]
+[debug] [2026-10-18T13:10:40.330Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com:enable 200
+[debug] [2026-10-18T13:10:40.331Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/sqladmin.googleapis.com:enable [omitted]
+[debug] [2026-10-18T13:10:50.352Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:50.353Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:10:50.354Z] >>> [apiv2][query] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/-/services [none]
+[debug] [2026-10-18T13:10:53.166Z] <<< [apiv2][status] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/-/services 200
+[debug] [2026-10-18T13:10:53.167Z] <<< [apiv2][body] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/-/services {}
+[debug] [2026-10-18T13:11:37.379Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:37.389Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:37.392Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com [none]
+[debug] [2026-10-18T13:11:37.393Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com  x-goog-user-project=ets-amani
+[debug] [2026-10-18T13:11:39.327Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com 200
+[debug] [2026-10-18T13:11:39.328Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com [omitted]
+[debug] [2026-10-18T13:11:39.330Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:39.331Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:39.332Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com:enable [none]
+[debug] [2026-10-18T13:11:39.332Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com:enable  x-goog-user-project=ets-amani
+[debug] [2026-10-18T13:11:41.317Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com:enable 200
+[debug] [2026-10-18T13:11:41.318Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/ets-amani/services/cloudbilling.googleapis.com:enable [omitted]
+[debug] [2026-10-18T13:11:51.358Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:51.359Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:51.361Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/ets-amani/billingInfo [none]
+[debug] [2026-10-18T13:11:51.362Z] >>> [apiv2][(partial)header] GET https://cloudbilling.googleapis.com/v1/projects/ets-amani/billingInfo  x-goog-user-project=ets-amani
+[debug] [2026-10-18T13:11:53.554Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/ets-amani/billingInfo 200
+[debug] [2026-10-18T13:11:53.556Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/ets-amani/billingInfo {"name":"projects/ets-amani/billingInfo","projectId":"ets-amani","billingAccountName":"","billingEnabled":false}
+[debug] [2026-10-18T13:11:53.566Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:53.567Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:53.569Z] >>> [apiv2][query] GET https://monitoring.googleapis.com/v3/projects/ets-amani/timeSeries/ filter=metric.type%3D%22serviceruntime.googleapis.com%2Fquota%2Fallocation%2Fusage%22+AND+metric.label.quota_metric+%3D+%22sqladmin.googleapis.com%2Ffdc_lifetime_free_trial_per_project%22&interval.endTime=2026-10-18T13%3A11%3A53.559Z&interval.startTime=2026-10-11T13%3A11%3A53.558Z
+[debug] [2026-10-18T13:11:55.512Z] <<< [apiv2][status] GET https://monitoring.googleapis.com/v3/projects/ets-amani/timeSeries/ 200
+[debug] [2026-10-18T13:11:55.513Z] <<< [apiv2][body] GET https://monitoring.googleapis.com/v3/projects/ets-amani/timeSeries/ {"unit":"1"}
+[info] ✔  dataconnect: CloudSQL no cost trial available! 
+[debug] [2026-10-18T13:11:55.520Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:55.521Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:55.522Z] >>> [apiv2][query] GET https://sqladmin.googleapis.com/v1/projects/ets-amani/instances [none]
+[debug] [2026-10-18T13:11:57.225Z] <<< [apiv2][status] GET https://sqladmin.googleapis.com/v1/projects/ets-amani/instances 200
+[debug] [2026-10-18T13:11:57.226Z] <<< [apiv2][body] GET https://sqladmin.googleapis.com/v1/projects/ets-amani/instances {}
+[debug] [2026-10-18T13:11:57.232Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:57.233Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:11:57.233Z] >>> [apiv2][query] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations [none]
+[debug] [2026-10-18T13:11:59.155Z] <<< [apiv2][status] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations 200
+[debug] [2026-10-18T13:11:59.156Z] <<< [apiv2][body] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations {"locations":[{"name":"projects/ets-amani/locations/asia-east1","locationId":"asia-east1","displayName":"Taiwan"},{"name":"projects/ets-amani/locations/asia-east2","locationId":"asia-east2","displayName":"Hong Kong"},{"name":"projects/ets-amani/locations/asia-northeast1","locationId":"asia-northeast1","displayName":"Tokyo"},{"name":"projects/ets-amani/locations/asia-northeast2","locationId":"asia-northeast2","displayName":"Osaka"},{"name":"projects/ets-amani/locations/asia-northeast3","locationId":"asia-northeast3","displayName":"Seoul"},{"name":"projects/ets-amani/locations/asia-south1","locationId":"asia-south1","displayName":"Mumbai"},{"name":"projects/ets-amani/locations/asia-southeast1","locationId":"asia-southeast1","displayName":"Singapore"},{"name":"projects/ets-amani/locations/asia-southeast2","locationId":"asia-southeast2","displayName":"Jakarta"},{"name":"projects/ets-amani/locations/australia-southeast1","locationId":"australia-southeast1","displayName":"Sydney"},{"name":"projects/ets-amani/locations/australia-southeast2","locationId":"australia-southeast2","displayName":"Melbourne"},{"name":"projects/ets-amani/locations/europe-central2","locationId":"europe-central2","displayName":"Warsaw"},{"name":"projects/ets-amani/locations/europe-north1","locationId":"europe-north1","displayName":"Finland"},{"name":"projects/ets-amani/locations/europe-southwest1","locationId":"europe-southwest1","displayName":"Madrid"},{"name":"projects/ets-amani/locations/europe-west1","locationId":"europe-west1","displayName":"Belgium"},{"name":"projects/ets-amani/locations/europe-west2","locationId":"europe-west2","displayName":"London"},{"name":"projects/ets-amani/locations/europe-west3","locationId":"europe-west3","displayName":"Frankfurt"},{"name":"projects/ets-amani/locations/europe-west4","locationId":"europe-west4","displayName":"Netherlands"},{"name":"projects/ets-amani/locations/europe-west6","locationId":"europe-west6","displayName":"Zurich"},{"name":"projects/ets-amani/locations/europe-west8","locationId":"europe-west8","displayName":"Milan"},{"name":"projects/ets-amani/locations/europe-west9","locationId":"europe-west9","displayName":"Paris"},{"name":"projects/ets-amani/locations/me-west1","locationId":"me-west1","displayName":"Tel Aviv"},{"name":"projects/ets-amani/locations/northamerica-northeast1","locationId":"northamerica-northeast1","displayName":"Montréal"},{"name":"projects/ets-amani/locations/northamerica-northeast2","locationId":"northamerica-northeast2","displayName":"Toronto"},{"name":"projects/ets-amani/locations/southamerica-east1","locationId":"southamerica-east1","displayName":"São Paulo"},{"name":"projects/ets-amani/locations/southamerica-west1","locationId":"southamerica-west1","displayName":"Santiago"},{"name":"projects/ets-amani/locations/us-central1","locationId":"us-central1","displayName":"Iowa"},{"name":"projects/ets-amani/locations/us-east1","locationId":"us-east1","displayName":"South Carolina"},{"name":"projects/ets-amani/locations/us-east4","locationId":"us-east4","displayName":"Northern Virginia"},{"name":"projects/ets-amani/locations/us-south1","locationId":"us-south1","displayName":"Dallas"},{"name":"projects/ets-amani/locations/us-west1","locationId":"us-west1","displayName":"Oregon"},{"name":"projects/ets-amani/locations/us-west2","locationId":"us-west2","displayName":"Los Angeles"},{"name":"projects/ets-amani/locations/us-west3","locationId":"us-west3","displayName":"Salt Lake City"},{"name":"projects/ets-amani/locations/us-west4","locationId":"us-west4","displayName":"Las Vegas"}]}
+[info] ✔  dataconnect: Detected existing apps android/capacitor-cordova-android-plugins (android), android/app (android), . (web), functions (admin_node) 
+[debug] [2026-10-18T13:15:41.002Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:41.016Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:41.020Z] >>> [apiv2][query] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services service_id=amini
+[debug] [2026-10-18T13:15:41.021Z] >>> [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services {"name":"projects/ets-amani/locations/us-south1/services/amini"}
+[debug] [2026-10-18T13:15:43.891Z] <<< [apiv2][status] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services 200
+[debug] [2026-10-18T13:15:43.892Z] <<< [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services {"name":"projects/ets-amani/locations/us-south1/operations/operation-1792329343616-65e1d31d8c72a-98657beb-a1c0c2c3","metadata":{"@type":"type.googleapis.com/google.firebase.dataconnect.v1.OperationMetadata","createTime":"2026-10-18T13:15:44.915559237Z","target":"projects/ets-amani/locations/us-south1/services/amini","verb":"create","requestedCancellation":false,"apiVersion":"v1"},"done":false}
+[debug] [2026-10-18T13:15:43.903Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:43.903Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:43.906Z] >>> [apiv2][query] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/operations/operation-1792329343616-65e1d31d8c72a-98657beb-a1c0c2c3 [none]
+[debug] [2026-10-18T13:15:44.299Z] <<< [apiv2][status] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/operations/operation-1792329343616-65e1d31d8c72a-98657beb-a1c0c2c3 200
+[debug] [2026-10-18T13:15:44.300Z] <<< [apiv2][body] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/operations/operation-1792329343616-65e1d31d8c72a-98657beb-a1c0c2c3 {"name":"projects/ets-amani/locations/us-south1/operations/operation-1792329343616-65e1d31d8c72a-98657beb-a1c0c2c3","metadata":{"@type":"type.googleapis.com/google.firebase.dataconnect.v1.OperationMetadata","createTime":"2026-10-18T13:15:44.915559237Z","endTime":"2026-10-18T13:15:45.065015417Z","target":"projects/ets-amani/locations/us-south1/services/amini","verb":"create","requestedCancellation":false,"apiVersion":"v1"},"done":true,"response":{"@type":"type.googleapis.com/google.firebase.dataconnect.v1.Service","name":"projects/ets-amani/locations/us-south1/services/amini","createTime":"2026-10-18T13:15:44.909663329Z","updateTime":"2026-10-18T13:15:44.909663329Z","uid":"38b3dd91-ab45-4a6a-8e20-44970a311c6e","reconciling":false,"etag":"nRDmQ69ccIQx65bZ5TH9t-Dbgewj9V2WKP_dKndwQCU"}}
+[debug] [2026-10-18T13:15:44.339Z] [Agent Service] Reusable cURL command:\ncurl -X POST "https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateSchema" -H "Content-Type: application/json" -H "Authorization: Bearer $(gcloud auth print-access-token)" -d '{"name":"projects/ets-amani/locations/us-south1/services/-","prompt":"Default"}'
+[debug] [2026-10-18T13:15:44.340Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:44.341Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:44.341Z] >>> [apiv2][query] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateSchema [none]
+[debug] [2026-10-18T13:15:44.342Z] >>> [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateSchema {"name":"projects/ets-amani/locations/us-south1/services/-","prompt":"Default"}
+[debug] [2026-10-18T13:15:45.541Z] <<< [apiv2][status] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateSchema 200
+[debug] [2026-10-18T13:15:45.542Z] <<< [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateSchema [stream]
+[debug] [2026-10-18T13:15:49.562Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:49.562Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:49.564Z] [Agent Service] Reusable cURL command:\ncurl -X POST "https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery" -H "Content-Type: application/json" -H "Authorization: Bearer $(gcloud auth print-access-token)" -d '{"name":"projects/ets-amani/locations/us-south1/services/-","prompt":"Generate at least one create (insert/upsert), delete, update, get (read by key), and list operation for each table defined in the schema. For user-specific data, use the 'auth.uid' server value (e.g., id_expr: \"auth.uid\") or correct filters to secure user-owned data and require authentication using @auth(level: USER). For publicly accessible data, use @auth(level: PUBLIC, insecureReason: \"why is it OK to be public?\")","schemas":[{"name":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","datasources":[],"source":{"files":[{"path":"schema.gql","content":"type User @table {\n  email: String!\n  displayName: String!\n  avatarUrl: String\n  bio: String\n}\n\ntype Project @table {\n  name: String!\n  description: String\n  createdAt: Timestamp\n  owner: User!\n}\n\ntype Task @table {\n  title: String!\n  status: String!\n  description: String\n  dueDate: Date\n  project: Project!\n  assignee: User\n}\n\ntype Comment @table {\n  content: String!\n  createdAt: Timestamp\n  task: Task!\n  author: User!\n}\n\ntype ProjectMember @table(key: [\"user\", \"project\"]) {\n  user: User!\n  project: Project!\n  role: String!\n}"}]}}]}'
+[debug] [2026-10-18T13:15:49.565Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:49.565Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:49.566Z] [Agent Service] Reusable cURL command:\ncurl -X POST "https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery" -H "Content-Type: application/json" -H "Authorization: Bearer $(gcloud auth print-access-token)" -d '{"name":"projects/ets-amani/locations/us-south1/services/-","prompt":"Create a single mutation wrapped in a @transaction to populate the database with seed data. The mutation should call the insertMany action (e.g., table_insertMany) for all tables/entities defined in the schema, using fake data. Generate appropriate fake records (3 to 5 per table) conforming to the schema and including proper relationships/foreign keys.","schemas":[{"name":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","datasources":[],"source":{"files":[{"path":"schema.gql","content":"type User @table {\n  email: String!\n  displayName: String!\n  avatarUrl: String\n  bio: String\n}\n\ntype Project @table {\n  name: String!\n  description: String\n  createdAt: Timestamp\n  owner: User!\n}\n\ntype Task @table {\n  title: String!\n  status: String!\n  description: String\n  dueDate: Date\n  project: Project!\n  assignee: User\n}\n\ntype Comment @table {\n  content: String!\n  createdAt: Timestamp\n  task: Task!\n  author: User!\n}\n\ntype ProjectMember @table(key: [\"user\", \"project\"]) {\n  user: User!\n  project: Project!\n  role: String!\n}"}]}}]}'
+[debug] [2026-10-18T13:15:49.566Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:49.567Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:49.567Z] >>> [apiv2][query] PATCH https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/amini/schemas/main allowMissing=true&validateOnly=false
+[debug] [2026-10-18T13:15:49.567Z] >>> [apiv2][body] PATCH https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/amini/schemas/main {"name":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","datasources":[{"postgresql":{}}],"source":{"files":[{"path":"schema.gql","content":"type User @table {\n  email: String!\n  displayName: String!\n  avatarUrl: String\n  bio: String\n}\n\ntype Project @table {\n  name: String!\n  description: String\n  createdAt: Timestamp\n  owner: User!\n}\n\ntype Task @table {\n  title: String!\n  status: String!\n  description: String\n  dueDate: Date\n  project: Project!\n  assignee: User\n}\n\ntype Comment @table {\n  content: String!\n  createdAt: Timestamp\n  task: Task!\n  author: User!\n}\n\ntype ProjectMember @table(key: [\"user\", \"project\"]) {\n  user: User!\n  project: Project!\n  role: String!\n}"}]}}
+[debug] [2026-10-18T13:15:49.570Z] >>> [apiv2][query] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery [none]
+[debug] [2026-10-18T13:15:49.570Z] >>> [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery {"name":"projects/ets-amani/locations/us-south1/services/-","prompt":"Generate at least one create (insert/upsert), delete, update, get (read by key), and list operation for each table defined in the schema. For user-specific data, use the 'auth.uid' server value (e.g., id_expr: \"auth.uid\") or correct filters to secure user-owned data and require authentication using @auth(level: USER). For publicly accessible data, use @auth(level: PUBLIC, insecureReason: \"why is it OK to be public?\")","schemas":[{"name":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","datasources":[],"source":{"files":[{"path":"schema.gql","content":"type User @table {\n  email: String!\n  displayName: String!\n  avatarUrl: String\n  bio: String\n}\n\ntype Project @table {\n  name: String!\n  description: String\n  createdAt: Timestamp\n  owner: User!\n}\n\ntype Task @table {\n  title: String!\n  status: String!\n  description: String\n  dueDate: Date\n  project: Project!\n  assignee: User\n}\n\ntype Comment @table {\n  content: String!\n  createdAt: Timestamp\n  task: Task!\n  author: User!\n}\n\ntype ProjectMember @table(key: [\"user\", \"project\"]) {\n  user: User!\n  project: Project!\n  role: String!\n}"}]}}]}
+[debug] [2026-10-18T13:15:49.574Z] >>> [apiv2][query] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery [none]
+[debug] [2026-10-18T13:15:49.574Z] >>> [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery {"name":"projects/ets-amani/locations/us-south1/services/-","prompt":"Create a single mutation wrapped in a @transaction to populate the database with seed data. The mutation should call the insertMany action (e.g., table_insertMany) for all tables/entities defined in the schema, using fake data. Generate appropriate fake records (3 to 5 per table) conforming to the schema and including proper relationships/foreign keys.","schemas":[{"name":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","datasources":[],"source":{"files":[{"path":"schema.gql","content":"type User @table {\n  email: String!\n  displayName: String!\n  avatarUrl: String\n  bio: String\n}\n\ntype Project @table {\n  name: String!\n  description: String\n  createdAt: Timestamp\n  owner: User!\n}\n\ntype Task @table {\n  title: String!\n  status: String!\n  description: String\n  dueDate: Date\n  project: Project!\n  assignee: User\n}\n\ntype Comment @table {\n  content: String!\n  createdAt: Timestamp\n  task: Task!\n  author: User!\n}\n\ntype ProjectMember @table(key: [\"user\", \"project\"]) {\n  user: User!\n  project: Project!\n  role: String!\n}"}]}}]}
+[debug] [2026-10-18T13:15:50.019Z] <<< [apiv2][status] PATCH https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/amini/schemas/main 200
+[debug] [2026-10-18T13:15:50.020Z] <<< [apiv2][body] PATCH https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/amini/schemas/main {"name":"projects/ets-amani/locations/us-south1/operations/operation-1792329351033-65e1d3249f424-e2cb16fc-3ae2bacc","metadata":{"@type":"type.googleapis.com/google.firebase.dataconnect.v1.OperationMetadata","createTime":"2026-10-18T13:15:51.061282201Z","target":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","verb":"update","requestedCancellation":false,"apiVersion":"v1"},"done":false}
+[debug] [2026-10-18T13:15:50.028Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:50.029Z] Checked if tokens are valid: true, expires at: 1792332615206
+[debug] [2026-10-18T13:15:50.029Z] >>> [apiv2][query] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/operations/operation-1792329351033-65e1d3249f424-e2cb16fc-3ae2bacc [none]
+[debug] [2026-10-18T13:15:50.459Z] <<< [apiv2][status] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery 200
+[debug] [2026-10-18T13:15:50.460Z] <<< [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery [stream]
+[debug] [2026-10-18T13:15:56.871Z] <<< [apiv2][status] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery 200
+[debug] [2026-10-18T13:15:56.873Z] <<< [apiv2][body] POST https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/services/-:generateQuery [stream]
+[debug] [2026-10-18T13:15:57.063Z] <<< [apiv2][status] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/operations/operation-1792329351033-65e1d3249f424-e2cb16fc-3ae2bacc 200
+[debug] [2026-10-18T13:15:57.065Z] <<< [apiv2][body] GET https://firebasedataconnect.googleapis.com/v1/projects/ets-amani/locations/us-south1/operations/operation-1792329351033-65e1d3249f424-e2cb16fc-3ae2bacc {"name":"projects/ets-amani/locations/us-south1/operations/operation-1792329351033-65e1d3249f424-e2cb16fc-3ae2bacc","metadata":{"@type":"type.googleapis.com/google.firebase.dataconnect.v1.OperationMetadata","createTime":"2026-10-18T13:15:51.061282201Z","endTime":"2026-10-18T13:15:51.275401625Z","target":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","verb":"update","requestedCancellation":false,"apiVersion":"v1"},"done":true,"response":{"@type":"type.googleapis.com/google.firebase.dataconnect.v1.Schema","name":"projects/ets-amani/locations/us-south1/services/amini/schemas/main","createTime":"2026-10-18T13:15:51.053485014Z","updateTime":"2026-10-18T13:15:51.053485014Z","source":{"files":[{"path":"schema.gql","content":"type User @table {\n  email: String!\n  displayName: String!\n  avatarUrl: String\n  bio: String\n}\n\ntype Project @table {\n  name: String!\n  description: String\n  createdAt: Timestamp\n  owner: User!\n}\n\ntype Task @table {\n  title: String!\n  status: String!\n  description: String\n  dueDate: Date\n  project: Project!\n  assignee: User\n}\n\ntype Comment @table {\n  content: String!\n  createdAt: Timestamp\n  task: Task!\n  author: User!\n}\n\ntype ProjectMember @table(key: [\"user\", \"project\"]) {\n  user: User!\n  project: Project!\n  role: String!\n}"}]},"uid":"85a04a8a-4e10-453c-8631-a4848ee746d7","reconciling":false,"datasources":[{"postgresql":{"ephemeral":true}}],"etag":"_N7krDB9JBMUGFoSUOTsdzqlYrscWX3WNQTchPZV4MY"}}
+[info] ✔  Wrote dataconnect/dataconnect.yaml 
+[info] ✔  Wrote dataconnect/seed_data.gql 
+[info] ✔  Wrote dataconnect/schema/schema.gql 
+[info] ✔  Wrote dataconnect/example/connector.yaml 
+[info] ✔  Wrote dataconnect/example/queries.gql 
+[info] ✔  Wrote dataconnect/example/connector.yaml 
+[info] i  dataconnect: Installing the generated SDKs ... 
+[info] i  dataconnect: downloading dataconnect-emulator-3.4.19... {"metadata":{"emulator":{"name":"dataconnect"},"message":"downloading dataconnect-emulator-3.4.19..."}}
+[debug] [2026-10-18T13:16:18.384Z] >>> [apiv2][query] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-linux-amd64-v3.4.19 
+[debug] [2026-10-18T13:16:20.125Z] <<< [apiv2][status] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-linux-amd64-v3.4.19 200
+[debug] [2026-10-18T13:16:20.126Z] <<< [apiv2][body] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-linux-amd64-v3.4.19 [stream]
